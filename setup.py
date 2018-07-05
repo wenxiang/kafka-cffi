@@ -11,7 +11,7 @@ setup(
     version="0.1",
     description="A CFFI binding for librdkafka",
     author="Wenxiang Wu",
-    author_email="thewrongboy@gmail.com ",
+    author_email="thewrongboy@gmail.com",
     url="https://github.com/wenxiang/cffi_kafka",
     license="MIT",
     packages=["kafka_cffi"],
