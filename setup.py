@@ -12,7 +12,7 @@ setup(
     description='A CFFI binding for librdkafka',
     author='Wenxiang Wu',
     author_email='thewrongboy@gmail.com',
-    url='https://github.com/wenxiang/cffi_kafka',
+    url='https://github.com/zendesk/cffi_kafka',
     license='MIT',
     packages=['kafka_cffi'],
     setup_requires=install_requires,
