@@ -24,7 +24,6 @@ typedef enum rd_kafka_timestamp_type_t {
 } rd_kafka_timestamp_type_t;
 
 typedef enum {
-	RD_KAFKA_RESP_ERR__INVALID_ARG = -186,
 	...
 } rd_kafka_resp_err_t;
 
@@ -41,7 +40,6 @@ typedef struct rd_kafka_message_s {
 } rd_kafka_message_t;
 
 typedef enum {
-	RD_KAFKA_CONF_OK = 0,
 	...
 } rd_kafka_conf_res_t;
 
@@ -60,6 +58,7 @@ int rd_kafka_poll(rd_kafka_t *rk, int timeout_ms);
 rd_kafka_resp_err_t rd_kafka_message_headers (const rd_kafka_message_t *rkmessage, rd_kafka_headers_t **hdrsp);
 rd_kafka_resp_err_t rd_kafka_header_get_all (const rd_kafka_headers_t *hdrs, size_t idx, const char **namep, const void **valuep, size_t *sizep);
 int64_t rd_kafka_message_timestamp (const rd_kafka_message_t *rkmessage, rd_kafka_timestamp_type_t *tstype);
+rd_kafka_resp_err_t rd_kafka_flush (rd_kafka_t *rk, int timeout_ms);
 """)
 
 ffi.set_source("kafka_cffi._rdkafka", """

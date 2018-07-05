@@ -10,9 +10,6 @@ class Message(object):
 	def __init__(self, rkmessage):
 		self.__rkmessage = rkmessage
 
-	def len(self):
-		return self.__rkmessage.len
-
 	def payload(self):
 		return ffi.string(
 			ffi.cast("const char *", self.__rkmessage.payload),
