@@ -1,9 +1,9 @@
-import six
-
-from ._rdkafka import ffi, lib
-from .errors import ConfigurationError, InitializationError
-from .errors import KafkaException, KafkaError
+from ._rdkafka import lib, ffi
+from .errors import ConfigurationError, InitializationError, KafkaException, \
+	KafkaError
+from .utils import ensure_bytes
 from .message import Message
+
 
 @ffi.def_extern("dr_msg_cb")
 def dr_msg_cb(rk, rkmessage, opaque):
@@ -23,16 +23,6 @@ def dr_msg_cb(rk, rkmessage, opaque):
 		m = Message(rkmessage)
 		cb_wrapper.cb(None, m)
 
-# def to_str(s):
-# 	if isinstance(s,)
-
-def ensure_bytes(s):
-	if isinstance(s, six.binary_type):
-		return s
-	elif isinstance(s, six.text_type):
-		return s.encode("utf8")
-	else:
-		raise ConfigurationError("argument must be a string / bytes")
 
 class CallbackWrapper(object):
 	__slots__ = ('producer', 'cb')
@@ -40,6 +30,7 @@ class CallbackWrapper(object):
 	def __init__(self, producer, cb):
 		self.producer = producer
 		self.cb = cb
+
 
 class Producer(object):
 
@@ -60,7 +51,6 @@ class Producer(object):
 		self.rk = lib.rd_kafka_new(lib.RD_KAFKA_PRODUCER, rd_conf, errstr, 256)
 		if not self.rk:
 			raise InitializationError(ffi.string(errstr))
-
 
 	def get_topic(self, topic):
 		rkt = self.topics.get(topic)
@@ -90,8 +80,8 @@ class Producer(object):
 			cb = ffi.NULL
 
 		result = lib.rd_kafka_produce(
-				rkt, partition, lib.RD_KAFKA_MSG_F_COPY,
-				value, len(value), key, len(key), cb)
+			rkt, partition, lib.RD_KAFKA_MSG_F_COPY,
+			value, len(value), key, len(key), cb)
 		if result == -1:
 			self.destroy_topic(topic)
 			raise KafkaException(lib.rd_kafka_last_error())
@@ -105,5 +95,3 @@ class Producer(object):
 		res = lib.rd_kafka_flush(self.rk, timeout)
 		if res != KafkaError.NO_ERROR:
 			raise KafkaException(res)
-
-
