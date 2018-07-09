@@ -1,13 +1,12 @@
 from ._rdkafka import lib, ffi
-from .errors import ConfigurationError, InitializationError, KafkaException, \
+from .errors import KafkaException, \
 	KafkaError
-from .utils import ensure_bytes
 from .message import Message
+from .utils import ensure_bytes, make_rd_conf, kafka_new
 
 
-@ffi.def_extern("dr_msg_cb")
-def dr_msg_cb(rk, rkmessage, opaque):
-
+@ffi.def_extern()
+def producer_delivery_cb(rk, rkmessage, opaque):
 	if not rkmessage._private:
 		# no callbacks, return immediately
 		return
@@ -34,23 +33,13 @@ class CallbackWrapper(object):
 
 class Producer(object):
 
-	def __init__(self, conf):
+	def __init__(self, *args, **kwargs):
 		self.topics = {}
 		self.callbacks = set()
 
-		rd_conf = lib.rd_kafka_conf_new()
-		errstr = ffi.new("char[256]")
-		for k, v in conf.items():
-			res = lib.rd_kafka_conf_set(rd_conf,
-				ensure_bytes(k), ensure_bytes(v), errstr, 256)
-			if res != 0:
-				raise ConfigurationError(ffi.string(errstr))
-
-		lib.rd_kafka_conf_set_dr_msg_cb(rd_conf, lib.dr_msg_cb)
-
-		self.rk = lib.rd_kafka_new(lib.RD_KAFKA_PRODUCER, rd_conf, errstr, 256)
-		if not self.rk:
-			raise InitializationError(ffi.string(errstr))
+		rd_conf = make_rd_conf(*args, **kwargs)
+		lib.rd_kafka_conf_set_dr_msg_cb(rd_conf, lib.producer_delivery_cb)
+		self.rk = kafka_new(lib.RD_KAFKA_PRODUCER, rd_conf)
 
 	def get_topic(self, topic):
 		rkt = self.topics.get(topic)
