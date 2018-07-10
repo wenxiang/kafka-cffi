@@ -1,3 +1,4 @@
+from kafka_cffi.config import Configuration
 from ._rdkafka import lib, ffi
 from .errors import KafkaException, \
 	KafkaError
@@ -7,39 +8,36 @@ from .utils import ensure_bytes, make_rd_conf, kafka_new
 
 @ffi.def_extern()
 def producer_delivery_cb(rk, rkmessage, opaque):
-	if not rkmessage._private:
+	if not (rkmessage._private or opaque):
 		# no callbacks, return immediately
 		return
 
-	cb_wrapper = ffi.from_handle(rkmessage._private)
-	# clear references to prevent memory leak
-	cb_wrapper.producer.callbacks.remove(rkmessage._private)
-	cb_wrapper.producer = None
+	if rkmessage._private:
+		tup = ffi.from_handle(rkmessage._private)
+		producer, cb = tup
+		# clear references to prevent memory leak
+		producer.callbacks.remove(tup)
 
-	if rkmessage.err:
-		cb_wrapper.cb(KafkaError(rkmessage.err), None)
-	else:
-		m = Message(rkmessage)
-		cb_wrapper.cb(None, m)
+		if rkmessage.err:
+			cb(KafkaError(rkmessage.err), None)
+		else:
+			cb(None, Message(rkmessage))
 
+	elif opaque:
+		producer = ffi.from_handle(opaque)
 
-class CallbackWrapper(object):
-	__slots__ = ('producer', 'cb')
-
-	def __init__(self, producer, cb):
-		self.producer = producer
-		self.cb = cb
 
 
 class Producer(object):
 
 	def __init__(self, *args, **kwargs):
+		self.config = Configuration(*args, **kwargs)
 		self.topics = {}
 		self.callbacks = set()
 
-		rd_conf = make_rd_conf(*args, **kwargs)
-		lib.rd_kafka_conf_set_dr_msg_cb(rd_conf, lib.producer_delivery_cb)
-		self.rk = kafka_new(lib.RD_KAFKA_PRODUCER, rd_conf)
+		lib.rd_kafka_conf_set_dr_msg_cb(self.config.rd_conf, lib.producer_delivery_cb)
+
+		self.rk = kafka_new(lib.RD_KAFKA_PRODUCER, self.config.rd_conf)
 
 	def get_topic(self, topic):
 		rkt = self.topics.get(topic)
@@ -63,8 +61,9 @@ class Producer(object):
 
 		rkt = self.get_topic(topic)
 		if on_delivery:
-			cb = ffi.new_handle(CallbackWrapper(self, on_delivery))
-			self.callbacks.add(cb)
+			tup = (self, on_delivery)
+			cb = ffi.new_handle(tup)
+			self.callbacks.add(tup)
 		else:
 			cb = ffi.NULL
 

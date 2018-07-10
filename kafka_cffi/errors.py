@@ -131,8 +131,8 @@ class KafkaError(object):
 
 class KafkaException(Exception):
 
-	def __init__(self, err):
-		super(KafkaException, self).__init__(KafkaError(err))
+	def __init__(self, err, *args, **kwargs):
+		super(KafkaException, self).__init__(KafkaError(err), *args, **kwargs)
 
 	def __repr__(self):
 		return self.args[0]
