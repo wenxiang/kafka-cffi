@@ -76,17 +76,18 @@ class BaseKafkaClient(object):
 		for k, v in conf.items():
 			if (lib.rd_kafka_topic_conf_set(self.rd_topic_conf,
 					ensure_bytes(k), ensure_bytes(v), errstr, 256) != 0):
-				raise KafkaException(KafkaError._INVALID_ARG, "%s: %s" % (k, errstr))
+				raise KafkaException(KafkaError._INVALID_ARG,
+					"%s: %s" % (k, ffi.string(errstr)))
 
 	def populate_rd_conf(self, k, v):
 		errstr = ffi.new("char[256]")
 		if (lib.rd_kafka_conf_set(self.rd_conf, ensure_bytes(k),
 				ensure_bytes(v), errstr, 256) != 0):
-			raise KafkaException(KafkaError._INVALID_ARG, "%s: %s" % (k, errstr))
+			raise KafkaException(KafkaError._INVALID_ARG,
+				"%s: %s" % (k, ffi.string(errstr)))
 
 	def parse_conf(self):
 		lib_path = self.conf_dict.pop("plugin.library.paths", None)
-		rd_topic_conf = None
 		if lib_path:
 			# configure plugins first
 			self.populate_rd_conf("plugin.library.paths", lib_path)
@@ -95,7 +96,9 @@ class BaseKafkaClient(object):
 
 			if k == "default.topic.config":
 				self.populate_rd_topic_conf(k, v)
-				lib.rd_kafka_conf_set_default_topic_conf(rd_topic_conf)
+				lib.rd_kafka_topic_conf_set_opaque(self.rd_topic_conf, self.handle)
+				lib.rd_kafka_conf_set_default_topic_conf(
+					self.rd_conf, self.rd_topic_conf)
 
 			elif k == "error_cb":
 				if not callable(v):
@@ -131,6 +134,4 @@ class BaseKafkaClient(object):
 				self.populate_rd_conf(k, v)
 
 		lib.rd_kafka_conf_set_opaque(self.rd_conf, self.handle)
-		if rd_topic_conf:
-			lib.rd_kafka_topic_conf_set_opaque(rd_topic_conf, self.handle)
 

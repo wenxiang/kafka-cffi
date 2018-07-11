@@ -14,8 +14,9 @@ setup(
     author_email="wwu@zendesk.com",
     url="https://github.com/zendesk/cffi_kafka",
     license="MIT",
+    package_dir={"": "src"},
     packages=["kafka_cffi"],
     setup_requires=install_requires,
     install_requires=install_requires,
-    cffi_modules=["build_ffi.py:ffi"],
+    cffi_modules=["src/build_ffi.py:ffi"],
 )

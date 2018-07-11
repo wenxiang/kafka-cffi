@@ -2,7 +2,7 @@ from cffi import FFI
 
 ffi = FFI()
 
-KAFKA_CFFI_H = open("kafka_cffi.h", "r").read()
+KAFKA_CFFI_H = open("src/kafka_cffi.h", "r").read()
 ffi.cdef(KAFKA_CFFI_H)
 
 ffi.set_source("kafka_cffi._rdkafka", """

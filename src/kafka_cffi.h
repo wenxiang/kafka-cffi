@@ -47,6 +47,10 @@ typedef struct rd_kafka_topic_partition_list_s {
   rd_kafka_topic_partition_t *elems;
 } rd_kafka_topic_partition_list_t;
 
+int rd_kafka_version(void);
+
+const char *rd_kafka_version_str (void);
+
 typedef enum {... } rd_kafka_conf_res_t;
 
 rd_kafka_resp_err_t rd_kafka_last_error(void);
@@ -153,7 +157,10 @@ void rd_kafka_conf_set_log_cb(rd_kafka_conf_t *conf,
 			    const char *fac, const char *buf));
 
 void rd_kafka_conf_set_opaque(rd_kafka_conf_t *conf, void *opaque);
+
 void rd_kafka_topic_conf_set_opaque(rd_kafka_topic_conf_t *conf, void *opaque);
+
+int rd_kafka_outq_len(rd_kafka_t *rk);
 
 extern "Python"
 static void producer_delivery_cb(rd_kafka_t *rk,

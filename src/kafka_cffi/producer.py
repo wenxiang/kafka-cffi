@@ -69,7 +69,8 @@ class Producer(BaseKafkaClient):
 		lib.rd_kafka_topic_destroy(rkt)
 
 	def produce(self, topic, value="", key="", partition=-1, on_delivery=None,
-			timestamp=None):
+			timestamp=None, callback=None):
+		on_delivery = on_delivery or callback
 		topic = ensure_bytes(topic)
 		value = ensure_bytes(value)
 		key = ensure_bytes(key)
@@ -95,5 +96,4 @@ class Producer(BaseKafkaClient):
 	def flush(self, timeout=-1):
 		timeout = int(timeout * 1000) if timeout >= 0 else -1
 		res = lib.rd_kafka_flush(self.rk, timeout)
-		if res != KafkaError.NO_ERROR:
-			raise KafkaException(res)
+		return lib.rd_kafka_outq_len(self.rk)

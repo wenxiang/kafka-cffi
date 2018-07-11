@@ -6,3 +6,5 @@ build/
 dist/
 .eggs/
 kafka_cffi.egg-info/
+.tox/
+.pytest_cache/
