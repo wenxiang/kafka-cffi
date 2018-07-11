@@ -1,6 +1,7 @@
 import six
 
 from ._rdkafka import lib, ffi
+from .errors import KafkaException
 
 
 def ensure_bytes(s):
@@ -17,10 +18,23 @@ def ensure_bytes(s):
 def libversion():
 	return lib.rd_kafka_version(), ffi.string(lib.rd_kafka_version_str())
 
+
 def headers_to_c(headers):
 	if type(headers) is not list:
-		raise TypeError("Headers are expected to be a "
-		                "list of (key, value) tuples")
+		raise TypeError("Headers are expected to be a list of (key, value) tuples")
 
+	rd_headers = lib.rd_kafka_headers_new(len(headers))
+	for key, value in headers:
+		try:
+			key_b = ensure_bytes(key)
+			value_b = ensure_bytes(value)
+			err = lib.rd_kafka_header_add(rd_headers, key_b, len(key_b),
+				value_b, len(value_b))
 
+			if err:
+				raise KafkaException(err, "Unable to create message headers")
+		except:
+			lib.rd_kafka_headers_destroy(rd_headers)
+			raise
 
+	return rd_headers
