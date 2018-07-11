@@ -1,40 +1,48 @@
 from ._rdkafka import lib, ffi
 from .errors import KafkaError
 
-class Message(object):
 
+class Message(object):
 	__slots__ = (
-		"__rkmessage",
+		"__payload",
+		"__key",
+		"__partition",
+		"__offset",
+		"__timestamp",
+		"__error"
 	)
 
 	def __init__(self, rkmessage):
-		self.__rkmessage = rkmessage
+		self.__payload = ffi.string(
+			ffi.cast("const char *", rkmessage.payload), rkmessage.len)
+		self.__key = ffi.string(
+			ffi.cast("const char *", rkmessage.key), rkmessage.key_len)
+		self.__partition = rkmessage.partition
+		self.__offset = rkmessage.offset
+		tstype = ffi.new("rd_kafka_timestamp_type_t *")
+		ts = lib.rd_kafka_message_timestamp(rkmessage, tstype)
+		self.__timestamp = (tstype[0], ts)
+		if rkmessage.err:
+			self.__error = KafkaError(rkmessage.err)
 
 	def payload(self):
-		return ffi.string(
-			ffi.cast("const char *", self.__rkmessage.payload),
-			self.__rkmessage.len)
+		return self.__payload
 
 	def error(self):
-		if self.__rkmessage.err:
-			return KafkaError(self.__rkmessage.err)
+		return self.__error
 
 	def key(self):
-		return ffi.string(
-			ffi.cast("const char *", self.__rkmessage.key),
-			self.__rkmessage.key_len)
+		return self.__key
 
 	def offset(self):
-		return self.__rkmessage.offset
+		return self.__offset
 
 	def partition(self):
-		return self.__rkmessage.partition
+		return self.__partition
 
 	def timestamp(self):
-		tstype = ffi.new("rd_kafka_timestamp_type_t *")
-		ts = lib.rd_kafka_message_timestamp(self.__rkmessage, tstype)
-		return (tstype[0], ts)
+		return self.__timestamp
 
 	def headers(self):
 		# TODO
-		pass
+		raise NotImplementedError

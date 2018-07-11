@@ -1,43 +1,58 @@
-from kafka_cffi.config import Configuration
+from .client import BaseKafkaClient
 from ._rdkafka import lib, ffi
 from .errors import KafkaException, \
 	KafkaError
 from .message import Message
-from .utils import ensure_bytes, make_rd_conf, kafka_new
+from .utils import ensure_bytes
 
 
 @ffi.def_extern()
 def producer_delivery_cb(rk, rkmessage, opaque):
-	if not (rkmessage._private or opaque):
-		# no callbacks, return immediately
+	if rkmessage._private:
+		# This callback was set in produce() so it takes precedence
+		producer, cb = ffi.from_handle(rkmessage._private)
+		# clear references to prevent memory leak
+		producer.callbacks.remove(rkmessage._private)
+	elif opaque:
+		# This callback was set in Producer config
+		producer = ffi.from_handle(opaque)
+		if producer.on_delivery:
+			cb = producer.on_delivery
+		else:
+			return
+
+	else:
+		# no callbacks, just return
 		return
 
-	if rkmessage._private:
-		tup = ffi.from_handle(rkmessage._private)
-		producer, cb = tup
-		# clear references to prevent memory leak
-		producer.callbacks.remove(tup)
-
-		if rkmessage.err:
-			cb(KafkaError(rkmessage.err), None)
-		else:
-			cb(None, Message(rkmessage))
-
-	elif opaque:
-		producer = ffi.from_handle(opaque)
+	if rkmessage.err:
+		cb(KafkaError(rkmessage.err), None)
+	else:
+		cb(None, Message(rkmessage))
 
 
+class Producer(BaseKafkaClient):
 
-class Producer(object):
+	MODE = lib.RD_KAFKA_PRODUCER
 
 	def __init__(self, *args, **kwargs):
-		self.config = Configuration(*args, **kwargs)
 		self.topics = {}
 		self.callbacks = set()
+		self.on_delivery = None
+		super(Producer, self).__init__(*args, **kwargs)
 
-		lib.rd_kafka_conf_set_dr_msg_cb(self.config.rd_conf, lib.producer_delivery_cb)
+	def parse_conf(self):
+		super(Producer, self).parse_conf()
 
-		self.rk = kafka_new(lib.RD_KAFKA_PRODUCER, self.config.rd_conf)
+		on_delivery = self.conf_dict.get("on_delivery")
+		if on_delivery:
+			if not callable(on_delivery):
+				raise KafkaException(KafkaError._INVALID_ARG,
+					"on_delivery requires a callable")
+
+			self.on_delivery = on_delivery
+
+		lib.rd_kafka_conf_set_dr_msg_cb(self.rd_conf, lib.producer_delivery_cb)
 
 	def get_topic(self, topic):
 		rkt = self.topics.get(topic)
@@ -61,9 +76,8 @@ class Producer(object):
 
 		rkt = self.get_topic(topic)
 		if on_delivery:
-			tup = (self, on_delivery)
-			cb = ffi.new_handle(tup)
-			self.callbacks.add(tup)
+			cb = ffi.new_handle((self, on_delivery))
+			self.callbacks.add(cb)
 		else:
 			cb = ffi.NULL
 

@@ -90,6 +90,12 @@ rd_kafka_resp_err_t rd_kafka_header_get_all(const rd_kafka_headers_t *hdrs,
                                             size_t idx, const char **namep,
                                             const void **valuep, size_t *sizep);
 
+void rd_kafka_destroy(rd_kafka_t *rk);
+
+void rd_kafka_conf_destroy(rd_kafka_conf_t *conf);
+
+void rd_kafka_message_destroy(rd_kafka_message_t *rkmessage);
+
 int64_t rd_kafka_message_timestamp(const rd_kafka_message_t *rkmessage,
                                    rd_kafka_timestamp_type_t *tstype);
 
@@ -174,4 +180,4 @@ static void throttle_cb (rd_kafka_t *rk, const char *broker_name, int32_t broker
 
 extern "Python"
 static void log_cb (const rd_kafka_t *rk, int level,
-			    const char *fac, const char *buf))
+			    const char *fac, const char *buf);
