@@ -86,6 +86,14 @@ int rd_kafka_produce(rd_kafka_topic_t *rkt, int32_t partition, int msgflags,
 
 int rd_kafka_poll(rd_kafka_t *rk, int timeout_ms);
 
+rd_kafka_headers_t *rd_kafka_headers_new (size_t initial_count);
+
+void rd_kafka_headers_destroy (rd_kafka_headers_t *hdrs);
+
+rd_kafka_resp_err_t rd_kafka_header_add (rd_kafka_headers_t *hdrs,
+                     const char *name, ssize_t name_size,
+                     const void *value, ssize_t value_size);
+
 rd_kafka_resp_err_t
 rd_kafka_message_headers(const rd_kafka_message_t *rkmessage,
                          rd_kafka_headers_t **hdrsp);
@@ -126,41 +134,51 @@ rd_kafka_queue_t *rd_kafka_queue_get_consumer(rd_kafka_t *rk);
 rd_kafka_topic_conf_t *rd_kafka_topic_conf_new(void);
 
 rd_kafka_conf_res_t rd_kafka_topic_conf_set(rd_kafka_topic_conf_t *conf,
-					     const char *name,
-					     const char *value,
-					     char *errstr, size_t errstr_size);
+                         const char *name,
+                         const char *value,
+                         char *errstr, size_t errstr_size);
 
 void rd_kafka_conf_set_default_topic_conf (rd_kafka_conf_t *conf,
                                            rd_kafka_topic_conf_t *tconf);
 
 void rd_kafka_conf_set_error_cb(rd_kafka_conf_t *conf,
-				 void  (*error_cb) (rd_kafka_t *rk, int err,
-						    const char *reason,
-						    void *opaque));
+                 void  (*error_cb) (rd_kafka_t *rk, int err,
+                            const char *reason,
+                            void *opaque));
 
 void rd_kafka_conf_set_stats_cb(rd_kafka_conf_t *conf,
-				 int (*stats_cb) (rd_kafka_t *rk,
-						  char *json,
-						  size_t json_len,
-						  void *opaque));
+                 int (*stats_cb) (rd_kafka_t *rk,
+                          char *json,
+                          size_t json_len,
+                          void *opaque));
 
 void rd_kafka_conf_set_throttle_cb (rd_kafka_conf_t *conf,
-				    void (*throttle_cb) (
-					    rd_kafka_t *rk,
-					    const char *broker_name,
-					    int32_t broker_id,
-					    int throttle_time_ms,
-					    void *opaque));
+                    void (*throttle_cb) (
+                        rd_kafka_t *rk,
+                        const char *broker_name,
+                        int32_t broker_id,
+                        int throttle_time_ms,
+                        void *opaque));
 
 void rd_kafka_conf_set_log_cb(rd_kafka_conf_t *conf,
-			  void (*log_cb) (const rd_kafka_t *rk, int level,
-			    const char *fac, const char *buf));
+              void (*log_cb) (const rd_kafka_t *rk, int level,
+                const char *fac, const char *buf));
 
 void rd_kafka_conf_set_opaque(rd_kafka_conf_t *conf, void *opaque);
 
 void rd_kafka_topic_conf_set_opaque(rd_kafka_topic_conf_t *conf, void *opaque);
 
 int rd_kafka_outq_len(rd_kafka_t *rk);
+
+rd_kafka_resp_err_t produce(
+    rd_kafka_t *rk,
+    rd_kafka_topic_t * rkt,
+    int32_t partition,
+    void *value, size_t value_len,
+    void *key,   size_t key_len,
+    int64_t timestamp,
+    rd_kafka_headers_t *headers,
+    void *opaque);
 
 extern "Python"
 static void producer_delivery_cb(rd_kafka_t *rk,
@@ -187,4 +205,4 @@ static void throttle_cb (rd_kafka_t *rk, const char *broker_name, int32_t broker
 
 extern "Python"
 static void log_cb (const rd_kafka_t *rk, int level,
-			    const char *fac, const char *buf);
+                const char *fac, const char *buf);
