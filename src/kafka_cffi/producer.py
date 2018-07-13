@@ -41,6 +41,9 @@ class Producer(BaseKafkaClient):
         self.on_delivery = None
         super(Producer, self).__init__(*args, **kwargs)
 
+    def __len__(self):
+        return lib.rd_kafka_outq_len(self.rk)
+
     def parse_conf(self):
         super(Producer, self).parse_conf()
 
