@@ -131,7 +131,8 @@ class BaseKafkaClient(object):
                 lib.rd_kafka_conf_set_log_cb(self.rd_conf, lib.log_cb)
                 self.populate_rd_conf("log.queue", "true")
 
-            elif k in ("on_delivery", "on_commit"):
+            elif k in ("on_delivery", "delivery.report.only.error",
+                       "on_commit"):
                 # producer & consumer specific - to be handled in subclass
                 pass
 

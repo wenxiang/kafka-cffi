@@ -27,9 +27,10 @@ def producer_delivery_cb(rk, rkmessage, opaque):
         return
 
     if rkmessage.err:
-        cb(KafkaError(rkmessage.err), None)
+        cb(KafkaError(rkmessage.err), Message(rkmessage))
     else:
-        cb(None, Message(rkmessage))
+        if not producer.dr_only_error:
+            cb(None, Message(rkmessage))
 
 
 class Producer(BaseKafkaClient):
@@ -39,6 +40,7 @@ class Producer(BaseKafkaClient):
         self.topics = {}
         self.callbacks = set()
         self.on_delivery = None
+        self.dr_only_error = False
         super(Producer, self).__init__(*args, **kwargs)
 
     def __len__(self):
@@ -56,6 +58,12 @@ class Producer(BaseKafkaClient):
             self.on_delivery = on_delivery
 
         lib.rd_kafka_conf_set_dr_msg_cb(self.rd_conf, lib.producer_delivery_cb)
+
+        dr_only_error = self.conf_dict.get("delivery.report.only.error")
+        if type(dr_only_error) is not bool:
+            raise KafkaException(KafkaError._INVALID_ARG,
+                                 "delivery.report.only.error requires bool")
+        self.dr_only_error = dr_only_error
 
     def get_topic(self, topic):
         rkt = self.topics.get(topic)
