@@ -59,7 +59,7 @@ class Producer(BaseKafkaClient):
 
         lib.rd_kafka_conf_set_dr_msg_cb(self.rd_conf, lib.producer_delivery_cb)
 
-        dr_only_error = self.conf_dict.get("delivery.report.only.error")
+        dr_only_error = self.conf_dict.get("delivery.report.only.error", False)
         if type(dr_only_error) is not bool:
             raise KafkaException(KafkaError._INVALID_ARG,
                                  "delivery.report.only.error requires bool")
@@ -100,8 +100,11 @@ class Producer(BaseKafkaClient):
             timestamp or 0, hdrs, cb)
 
         if err:
-            self.destroy_topic(topic)
-            raise KafkaException(err)
+            # self.destroy_topic(topic)
+            if err == KafkaError._QUEUE_FULL:
+                raise BufferError(KafkaError(err).str())
+            else:
+                raise KafkaException(err)
 
     def poll(self, timeout=0):
         timeout = int(timeout * 1000) if timeout >= 0 else -1
