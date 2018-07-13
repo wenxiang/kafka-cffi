@@ -9,8 +9,8 @@ def ensure_bytes(s):
         return s
     elif isinstance(s, six.text_type):
         return s.encode("utf8")
-    elif isinstance(s, (long, int, float)):
-        return bytes(s)
+    elif isinstance(s, six.integer_types + (float,)):
+        return str(s).encode("utf8")
     else:
         raise TypeError("argument must be a string / bytes")
 
