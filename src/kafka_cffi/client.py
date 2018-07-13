@@ -5,6 +5,54 @@ from .errors import KafkaException, KafkaError
 from .utils import ensure_bytes
 
 
+LOGLEVEL_MAP = [
+    50, # 0 = LOG_EMERG   -> logging.CRITICAL
+    50, # 1 = LOG_ALERT   -> logging.CRITICAL
+    50, # 2 = LOG_CRIT    -> logging.CRITICAL
+    40, # 3 = LOG_ERR     -> logging.ERROR
+    30, # 4 = LOG_WARNING -> logging.WARNING
+    20, # 5 = LOG_NOTICE  -> logging.INFO
+    20, # 6 = LOG_INFO    -> logging.INFO
+    10, # 7 = LOG_DEBUG   -> logging.DEBUG
+]
+
+
+@ffi.def_extern()
+def error_cb(rk, err, reason, opaque):
+    if opaque:
+        config = ffi.from_handle(opaque)
+        if config.error_cb:
+            config.error_cb(KafkaError(err), ffi.string(reason))
+
+
+@ffi.def_extern()
+def stats_cb(rk, json, json_len, opaque):
+    if opaque:
+        config = ffi.from_handle(opaque)
+        if config.stats_cb:
+            json_str = ffi.string(json, json_len)
+            config.stats_cb(json_str)
+
+    return 0
+
+
+@ffi.def_extern()
+def throttle_cb(rk, broker_name, broker_id, throttle_time_ms, opaque):
+    if opaque:
+        config = ffi.from_handle(opaque)
+        if config.throttle_cb:
+            config.throttle_cb(ffi.string(broker_name), broker_id, throttle_time_ms)
+
+
+@ffi.def_extern()
+def log_cb(rk, level, fac, buf, opaque):
+    if opaque:
+        config = ffi.from_handle(opaque)
+        if config.logger:
+            config.logger.log(LOGLEVEL_MAP[level], "%s [%s] %s",
+                ffi.string(fac), ffi.string(lib.rd_kafka_name(rk)), ffi.string(buf))
+
+
 class BaseKafkaClient(object):
     _default_conf = {
         "produce.offset.report": "true",
