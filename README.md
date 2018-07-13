@@ -65,3 +65,28 @@ Tests
 For now only we are only passing `Producer` and `integration_test.py --producer`
 tests. The goal is to pass all of confluent-kafka's tests.
 
+
+Performance
+===========
+
+The `benchmarks` directory contains the jupyter notebooks used for benchmarks.
+Here are the results we have gathered so far on a core i7 2.6GHz Macbook Pro 13.
+On PyPy, kafka-cffi Producers are 4-5x faster than confluent-kafka. 
+
+Producer
+--------
+
+| Client | Platform | Message Size | DR Callbacks | msgs / s  |
+| - | - | - | - | - |
+| confluent-kafka | CPython 2.7 | 100 | n | 415,044 |
+| confluent-kafka | CPython 2.7 | 450 | n | 205,385 |
+| confluent-kafka | CPython 2.7 | 450 | y | 230,279 |
+| kafka-cffi | CPython 2.7 | 100 | n | 297,487 |
+| kafka-cffi | CPython 2.7 | 450| n | 153,077 |
+| kafka-cffi | CPython 2.7 | 450 | y | 110,479 |
+| confluent-kafka | PyPy 2.7 | 100 | n | 198,912 |
+| confluent-kafka | PyPy 2.7 | 450 | n | 85,064 |
+| confluent-kafka | PyPy 2.7 | 450 | y | 62,478 |
+| kafka-cffi | PyPy 2.7 | 100 | n | 852,946 |
+| kafka-cffi | PyPy 2.7 | 450| n | 435,655 |
+| kafka-cffi | PyPy 2.7 | 450 | y | 263,587 |
