@@ -9,10 +9,12 @@ class Message(object):
         "__partition",
         "__offset",
         "__timestamp",
-        "__error"
+        "__error",
+        "__topic"
     )
 
     def __init__(self, rkmessage):
+        self.__topic = ffi.string(lib.rd_kafka_topic_name(rkmessage.rkt))
         self.__payload = ffi.string(
             ffi.cast("const char *", rkmessage.payload), rkmessage.len)
         self.__key = ffi.string(
@@ -25,7 +27,16 @@ class Message(object):
         if rkmessage.err:
             self.__error = KafkaError(rkmessage.err)
 
+    def __len__(self):
+        return self.__payload and len(self.__payload) or 0
+
+    def topic(self):
+        return self.__topic
+
     def payload(self):
+        return self.__payload
+
+    def value(self):
         return self.__payload
 
     def error(self):

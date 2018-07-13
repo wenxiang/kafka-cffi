@@ -78,6 +78,8 @@ const char *rd_kafka_name(const rd_kafka_t *rk);
 rd_kafka_topic_t *rd_kafka_topic_new(rd_kafka_t *rk, const char *topic,
                                      rd_kafka_topic_conf_t *conf);
 
+const char *rd_kafka_topic_name(const rd_kafka_topic_t *rkt);
+
 void rd_kafka_topic_destroy(rd_kafka_topic_t *rkt);
 
 int rd_kafka_produce(rd_kafka_topic_t *rkt, int32_t partition, int msgflags,
