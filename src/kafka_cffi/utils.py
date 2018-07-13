@@ -16,7 +16,11 @@ def ensure_bytes(s):
 
 
 def libversion():
-    return lib.rd_kafka_version(), ffi.string(lib.rd_kafka_version_str())
+    return ffi.string(lib.rd_kafka_version_str()), lib.rd_kafka_version()
+
+
+def version():
+    return "0.11.4", 0x000b0400
 
 
 HEADER_TYPE_ERR = "Headers are expected to be a list of (key,value) tuples"
