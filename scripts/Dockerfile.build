@@ -1,0 +1,8 @@
+FROM quay.io/wenxiang/pypy-wheel-builder
+
+RUN apt-get install -y zlib1g-dev
+COPY scripts/install-libs.sh /tmp
+RUN /tmp/install-libs.sh
+
+WORKDIR /app
+
