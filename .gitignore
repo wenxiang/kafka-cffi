@@ -4,6 +4,7 @@
 .ipynb_checkpoints/
 build/
 dist/
+wheelhouse/
 .eggs/
 kafka_cffi.egg-info/
 .tox/
