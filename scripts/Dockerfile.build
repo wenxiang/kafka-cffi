@@ -1,0 +1,21 @@
+FROM wenxiang/pypy-wheel-builder
+
+ENV LIBRDKAFKA_VERSION 0.11.4
+ENV OPENSSL_VER=1.0.2o
+
+RUN mkdir /tmp/librdkafka && \
+    curl -L \
+    https://github.com/edenhill/librdkafka/archive/v$LIBRDKAFKA_VERSION.tar.gz | \
+    tar xz -C /tmp/librdkafka --strip-components=1 && \
+    cd /tmp/librdkafka && \
+    ./configure --prefix=/opt/build-libs && make && make install
+
+RUN mkdir /tmp/openssl && \
+    curl -L https://www.openssl.org/source/openssl-$OPENSSL_VER.tar.gz | \ 
+    tar xz -C /tmp/openssl --strip-components=1 && \
+    cd /tmp/openssl && \
+    ./config --prefix=/opt/build-libs zlib no-krb5 zlib shared && \
+    make && make install
+
+COPY . /app
+WORKDIR /app
