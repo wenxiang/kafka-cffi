@@ -24,7 +24,7 @@ RUN mkdir /tmp/python3.5 && \
     tar xz -C /tmp/python3.5 --strip-components=1 && \
     cd /tmp/python3.5 && \
     ./configure --prefix=/opt/python3.5 && make && make install && \
-    /opt/python3.5/bin/pip3 install auditwheel
+    /opt/python3.5/bin/pip3 install auditwheel twine
 
 RUN mkdir /tmp/patchelf && \
     curl -L https://nixos.org/releases/patchelf/patchelf-0.9/patchelf-0.9.tar.gz | \
