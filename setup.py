@@ -8,7 +8,7 @@ dirname = os.path.dirname(os.path.abspath(__file__))
 
 setup(
     name="kafka-cffi",
-    version="0.11.4b1",
+    version="0.11.4b2",
     description="A CFFI binding for librdkafka",
     author="Wenxiang Wu",
     author_email="thewrongboy@gmail.com",

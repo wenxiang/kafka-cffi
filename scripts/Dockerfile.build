@@ -3,6 +3,8 @@ FROM wenxiang/pypy-wheel-builder
 ENV LIBRDKAFKA_VERSION 0.11.4
 ENV OPENSSL_VER=1.0.2o
 
+RUN apt-get install -y zlib1g-dev
+
 RUN mkdir /tmp/openssl && cd $_ && \
     curl -L https://www.openssl.org/source/openssl-$OPENSSL_VER.tar.gz | \ 
     tar xz --strip-components=1 && \
@@ -15,18 +17,5 @@ RUN mkdir /tmp/librdkafka && cd $_ && \
     ./configure --prefix=/opt/build-libs && \
     make && make install
 
-COPY . /app
 WORKDIR /app
 
-ENV CFLAGS="-I/opt/build-libs/include" \
-    LDFLAGS="-L/opt/build-libs/lib" \
-    LD_LIBRARY_PATH=/opt/build-libs/lib
-
-RUN /opt/pypy2-5.10.0/bin/pypy setup.py bdist_wheel && \
-    /opt/pypy2-6.0.0/bin/pypy setup.py bdist_wheel && \
-    /opt/pypy3-5.10.0/bin/pypy3 setup.py bdist_wheel && \
-    /opt/pypy3-6.0.0/bin/pypy3 setup.py bdist_wheel
-
-RUN for whl in `ls /app/dist/*.whl`; do \
-    /opt/python3.5/bin/auditwheel repair --plat linux_x86_64 $whl; \
-    done
