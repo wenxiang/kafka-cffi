@@ -1,4 +1,4 @@
-FROM wenxiang/pypy-wheel-builder
+FROM quay.io/wenxiang/pypy-wheel-builder
 
 ENV LIBRDKAFKA_VERSION 0.11.4
 ENV OPENSSL_VER=1.0.2o
