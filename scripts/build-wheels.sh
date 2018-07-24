@@ -5,6 +5,8 @@ export LDFLAGS="-L/opt/build-libs/lib"
 
 /opt/pypy-6.0.0/bin/pypy setup.py sdist
 for env in $PYENVS; do
+  CFLAGS="-I/opt/build-libs/include" \
+  LDFLAGS="-L/opt/build-libs/lib" \
   /opt/$env/bin/pypy setup.py bdist_wheel
 done
 

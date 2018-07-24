@@ -12,5 +12,10 @@ matrix:
 script:
   - docker run -v $PWD:/app quay.io/wenxiang/kafka-cffi-builder
     scripts/build-wheels.sh
-  - pip install twine
-  - twine upload wheelhouse/*.whl
+  - if [[ ! $(python setup.py --version) =~ dev ]]; then
+      echo "Not a dev version, uploading to pypi" &&
+      pip install twine &&
+      twine upload dist/*.tar.gz wheelhouse/*.whl;
+    else
+      echo "Dev version, skipping upload"
+    fi
