@@ -3,18 +3,14 @@ language: python
 matrix:
   include:
     - sudo: required
+      language: python
+      python: 3.6
       services:
         - docker
-      env: PIP=pip
-    - os: osx
-      language: generic
-      env: PIP=pip2
+      env: PYPY_BUILD=1
 
 script:
-  - $PIP install cibuildwheel==0.7.1
-  - cibuildwheel --output-dir wheelhouse
-  - |
-    if [[ $TRAVIS_TAG ]]; then
-      python -m pip install twine
-      python -m twine upload wheelhouse/*.whl
-    fi
+  - docker run -v $PWD:/app quay.io/wenxiang/kafka-cffi-builder
+    scripts/build-wheels.sh
+  - pip install twine
+  - twine upload wheelhouse/*.whl
