@@ -17,5 +17,5 @@ script:
       pip install twine &&
       twine upload dist/*.tar.gz wheelhouse/*.whl;
     else
-      echo "Dev version, skipping upload"
+      echo "Dev version, skipping upload";
     fi
