@@ -8,7 +8,7 @@ dirname = os.path.dirname(os.path.abspath(__file__))
 
 setup(
     name="kafka-cffi",
-    version="0.11.4b2",
+    use_scm_version=True,
     description="A CFFI binding for librdkafka",
     author="Wenxiang Wu",
     author_email="thewrongboy@gmail.com",
@@ -16,7 +16,7 @@ setup(
     license="MIT",
     package_dir={"": "src"},
     packages=["kafka_cffi"],
-    setup_requires=install_requires,
+    setup_requires=['setuptools_scm'],
     install_requires=install_requires,
     cffi_modules=["src/build_ffi.py:ffi"],
 )
