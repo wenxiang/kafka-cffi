@@ -12,6 +12,7 @@ matrix:
 script:
   - docker run -v $PWD:/app quay.io/wenxiang/kafka-cffi-builder
     scripts/build-wheels.sh
+  - sudo chown -R $USER .
   - if [[ ! $(python setup.py --version) =~ dev ]]; then
       echo "Not a dev version, uploading to pypi" &&
       pip install twine &&
