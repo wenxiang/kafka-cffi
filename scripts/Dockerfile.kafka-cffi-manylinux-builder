@@ -1,0 +1,6 @@
+FROM quay.io/pypa/manylinux1_x86_64
+
+COPY scripts/install-libs.sh /tmp
+RUN /tmp/install-libs.sh
+
+WORKDIR /app
