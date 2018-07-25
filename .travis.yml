@@ -8,8 +8,8 @@ matrix:
       services:
         - docker
       env:
-        CIBW_BEFORE_BUILD="scripts/install-libs.sh"
         CIBW_SKIP="*-manylinux1_i686"
+        CIBW_MANYLINUX1_X86_64_IMAGE="quay.io/wenxiang/kafka-cffi-manylinux-builder"
 
 install:
   - pip install twine cibuildwheel
