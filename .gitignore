@@ -9,3 +9,5 @@ wheelhouse/
 kafka_cffi.egg-info/
 .tox/
 .pytest_cache/
+pypy-dist/
+pypy-wheelhouse/
