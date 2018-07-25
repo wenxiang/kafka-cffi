@@ -18,7 +18,7 @@ script:
   - cibuildwheel --output-dir wheelhouse
   - sudo chown -R $USER .
   - docker run --rm -w /app -v $PWD:/app 
-    quay.io/wenxiang/pypy-wheel-builder scripts/build-wheels.sh
+    quay.io/wenxiang/kafka-cffi-pypy-builder scripts/build-wheels.sh
   - sudo chown -R $USER .
   - python setup.py sdist
   - ls -la wheelhouse/*.whl pypy-wheelhouse/*.whl dist/*.tar.gz
