@@ -4,6 +4,11 @@ RUN curl https://bootstrap.pypa.io/get-pip.py > /tmp/get-pip.py && \
     yum install -y git gcc-c++ && \
     mkdir /opt/python
 
+RUN mkdir /opt/python/pp2501 && cd $_ && \
+    curl -L https://bitbucket.org/squeaky/portable-pypy/downloads/pypy-5.0.1-linux_x86_64-portable.tar.bz2 | \
+    tar xj --strip-components=1 && \
+    bin/pypy /tmp/get-pip.py
+
 RUN mkdir /opt/python/pp2510 && cd $_ && \
     curl -L https://bitbucket.org/squeaky/portable-pypy/downloads/pypy-5.10.0-linux_x86_64-portable.tar.bz2 | \
     tar xj --strip-components=1 && \
