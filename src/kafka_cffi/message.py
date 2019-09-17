@@ -10,7 +10,8 @@ class Message(object):
         "__offset",
         "__timestamp",
         "__error",
-        "__topic"
+        "__topic",
+        "__headers"
     )
 
     def __init__(self, rkmessage):
@@ -24,6 +25,25 @@ class Message(object):
         tstype = ffi.new("rd_kafka_timestamp_type_t *")
         ts = lib.rd_kafka_message_timestamp(rkmessage, tstype)
         self.__timestamp = (tstype[0], ts)
+
+        c_header_pt = ffi.new("rd_kafka_headers_t **")
+        lib.rd_kafka_message_headers(rkmessage, c_header_pt)
+        c_header = c_header_pt[0]
+        hdcount = lib.rd_kafka_header_cnt(c_header)
+
+        c_hd_key = ffi.new("const char **")
+        c_hd_payload = ffi.new("const char **")
+        c_hd_size = ffi.new("size_t *")
+        self.__headers = []
+        for idx in range(hdcount):
+            error = lib.rd_kafka_header_get_all(
+                c_header, idx, c_hd_key, ffi.cast("const void **", c_hd_payload), c_hd_size)
+            if error == 0:
+                self.__headers.append(
+                    (ffi.string(c_hd_key[0]),
+                     ffi.string(c_hd_payload[0], int(c_hd_size[0])))
+                )
+
         if rkmessage.err:
             self.__error = KafkaError(rkmessage.err)
 
@@ -55,5 +75,4 @@ class Message(object):
         return self.__timestamp
 
     def headers(self):
-        # TODO
-        raise NotImplementedError
+        return self.__headers

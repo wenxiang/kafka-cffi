@@ -104,6 +104,8 @@ rd_kafka_resp_err_t rd_kafka_header_get_all(const rd_kafka_headers_t *hdrs,
                                             size_t idx, const char **namep,
                                             const void **valuep, size_t *sizep);
 
+size_t rd_kafka_header_cnt (const rd_kafka_headers_t *hdrs);
+
 void rd_kafka_destroy(rd_kafka_t *rk);
 
 void rd_kafka_conf_destroy(rd_kafka_conf_t *conf);
