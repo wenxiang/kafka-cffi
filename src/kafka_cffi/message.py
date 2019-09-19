@@ -41,7 +41,7 @@ class Message(object):
             if error == 0:
                 self.__headers.append(
                     (ffi.string(c_hd_key[0]),
-                     ffi.string(c_hd_payload[0], int(c_hd_size[0])))
+                     ffi.unpack(c_hd_payload[0], int(c_hd_size[0])))
                 )
 
         if rkmessage.err:
