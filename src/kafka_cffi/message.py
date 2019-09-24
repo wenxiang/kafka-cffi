@@ -29,7 +29,10 @@ class Message(object):
         c_header_pt = ffi.new("rd_kafka_headers_t **")
         lib.rd_kafka_message_headers(rkmessage, c_header_pt)
         c_header = c_header_pt[0]
-        hdcount = lib.rd_kafka_header_cnt(c_header)
+
+        hdcount = 0
+        if c_header != ffi.NULL:
+            hdcount = lib.rd_kafka_header_cnt(c_header)
 
         c_hd_key = ffi.new("const char **")
         c_hd_payload = ffi.new("const char **")
