@@ -17,12 +17,18 @@ install:
 script:
   - cibuildwheel --output-dir wheelhouse
   - sudo chown -R $USER .
-  - docker run --rm -w /app -v $PWD:/app 
+  - docker run --rm -w /app -v $PWD:/app
     quay.io/wenxiang/kafka-cffi-pypy-builder scripts/build-wheels.sh
   - sudo chown -R $USER .
   - python setup.py sdist
   - ls -la wheelhouse/*.whl pypy-wheelhouse/*.whl dist/*.tar.gz
-  - if [[ ! $(python setup.py --version) =~ dev ]]; then
+  - wheel_versions=($(ls -1 wheelhouse/*.whl pypy-wheelhouse/*.whl |
+                       sed -re 's/.*kafka_cffi-([^-]+)-(pp|cp)[0-9]+.*/\1/' |
+                       sort -u))
+  - if [[ ${#wheel_versions[@]} -gt 1 ]]; then
+      echo "Multiple wheel versions found (${wheel_versions[@]}). Aborting upload to pypi";
+      exit 1;
+    elif [[ ! $(python setup.py --version) =~ dev ]]; then
       echo "Not a dev version, uploading to pypi" &&
       twine upload dist/*.tar.gz wheelhouse/*.whl pypy-wheelhouse/*.whl;
     else
