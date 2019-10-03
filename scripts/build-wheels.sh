@@ -1,6 +1,8 @@
 #!/bin/bash
 
 for PYBIN in /opt/python/*/bin; do
+  echo "Checking git status before running bdist_wheel on $PYBIN/pypy"
+  git status
   $PYBIN/pypy setup.py bdist_wheel -d pypy-dist
 done
 
