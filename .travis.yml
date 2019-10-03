@@ -27,7 +27,7 @@ script:
                        sort -u))
   - if [[ ${#wheel_versions[@]} -gt 1 ]]; then
       echo "Multiple wheel versions found (${wheel_versions[@]}). Aborting upload to pypi";
-      exit 1;
+      false;
     elif [[ ! $(python setup.py --version) =~ dev ]]; then
       echo "Not a dev version, uploading to pypi" &&
       twine upload dist/*.tar.gz wheelhouse/*.whl pypy-wheelhouse/*.whl;
