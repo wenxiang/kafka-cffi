@@ -24,9 +24,3 @@ script:
   - sudo chown -R $USER .
   - python setup.py sdist
   - ls -la wheelhouse/*.whl pypy-wheelhouse/*.whl dist/*.tar.gz
-  - if [[ ! $(python setup.py --version) =~ dev ]]; then
-      echo "Not a dev version, uploading to pypi" &&
-      twine upload dist/*.tar.gz wheelhouse/*.whl pypy-wheelhouse/*.whl;
-    else
-      echo "Dev version, skipping upload";
-    fi
