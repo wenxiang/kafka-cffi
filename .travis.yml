@@ -15,11 +15,9 @@ install:
   - pip install twine cibuildwheel
 
 script:
-  - cibuildwheel --output-dir wheelhouse
-  - sudo chown -R $USER .
-  - docker run --rm -w /app -v $PWD:/app
+  - docker run --user $(id -u):$(id -g) --rm -w /app -v $PWD:/app
     quay.io/wenxiang/kafka-cffi-pypy-builder scripts/build-wheels.sh
-  - sudo chown -R $USER .
+  - cibuildwheel --output-dir wheelhouse
   - python setup.py sdist
   - ls -la wheelhouse/*.whl pypy-wheelhouse/*.whl dist/*.tar.gz
   - wheel_versions=($(ls -1 wheelhouse/*.whl pypy-wheelhouse/*.whl |
