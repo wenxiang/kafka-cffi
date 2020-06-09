@@ -8,6 +8,10 @@ if [[ ! -e /usr/local/lib/librdkafka.so ]]; then
 
   yum install -y zlib-devel unzip
 
+  for i in /usr/local/lib /usr/local/lib64; do
+    echo $i
+  done > /etc/ld.so.conf.d/usrlocal.conf
+
   mkdir /tmp/openssl && cd $_ && \
     curl -L https://www.openssl.org/source/openssl-$OPENSSL_VER.tar.gz | \
     tar xz --strip-components=1 && \
