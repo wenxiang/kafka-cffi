@@ -15,7 +15,7 @@ install:
   - pip install twine cibuildwheel
 
 script:
-  - docker run --user $(id -u):$(id -g) --rm -w /app -v $PWD:/app
+  - docker run --rm -w /app -v $PWD:/app
     quay.io/wenxiang/kafka-cffi-pypy-builder scripts/build-wheels.sh
   - cibuildwheel --output-dir wheelhouse
   - python setup.py sdist
