@@ -18,6 +18,7 @@ script:
   - docker run --rm -w /app -v $PWD:/app
     quay.io/wenxiang/kafka-cffi-pypy-builder scripts/build-wheels.sh
   - cibuildwheel --output-dir wheelhouse
+  - sudo chown -R $(id -u):$(id -g) .
   - python setup.py sdist
   - ls -la wheelhouse/*.whl pypy-wheelhouse/*.whl dist/*.tar.gz
   - wheel_versions=($(ls -1 wheelhouse/*.whl pypy-wheelhouse/*.whl |
