@@ -1,5 +1,7 @@
 #!/bin/bash
 
+export LD_LIBRARY_PATH=/usr/local/lib:/usr/local/lib64
+
 for PYBIN in /opt/python/*/bin; do
   echo "Checking git status before running bdist_wheel on $PYBIN/pypy"
   git status
