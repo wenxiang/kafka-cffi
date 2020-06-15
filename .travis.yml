@@ -8,7 +8,7 @@ matrix:
       services:
         - docker
       env:
-        CIBW_SKIP="*-manylinux1_i686"
+        CIBW_SKIP="*-manylinux1_i686 cp34-*"
         CIBW_MANYLINUX1_X86_64_IMAGE="quay.io/hyperair/kafka-cffi-manylinux-builder"
 
 install:
