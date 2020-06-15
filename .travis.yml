@@ -12,12 +12,19 @@ matrix:
         CIBW_MANYLINUX1_X86_64_IMAGE="quay.io/wenxiang/kafka-cffi-manylinux-builder"
 
 install:
-  - pip install twine cibuildwheel
+  - pip install twine cibuildwheel==0.12.0
+
+  # hack to get libffi-devel installed for cpython3.4. ideally this should be in
+  # install-libs.sh, but quay.io is broken right now.
+  - docker pull "$CIBW_MANYLINUX1_X86_64_IMAGE"
+  - docker run --name=kafka-cffi-manylinux-builder "$CIBW_MANYLINUX1_X86_64_IMAGE" yum install -y libffi-devel
+  - docker commit kafka-cffi-manylinux-builder "$CIBW_MANYLINUX1_X86_64_IMAGE"
 
 script:
-  - docker run --user $(id -u):$(id -g) --rm -w /app -v $PWD:/app
+  - docker run --rm -w /app -v $PWD:/app
     quay.io/wenxiang/kafka-cffi-pypy-builder scripts/build-wheels.sh
   - cibuildwheel --output-dir wheelhouse
+  - sudo chown -R $(id -u):$(id -g) .
   - python setup.py sdist
   - ls -la wheelhouse/*.whl pypy-wheelhouse/*.whl dist/*.tar.gz
   - wheel_versions=($(ls -1 wheelhouse/*.whl pypy-wheelhouse/*.whl |

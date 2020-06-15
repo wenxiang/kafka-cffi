@@ -1,5 +1,7 @@
 #!/bin/bash
 
+export LD_LIBRARY_PATH=/usr/local/lib:/usr/local/lib64
+
 for PYBIN in /opt/python/*/bin; do
   echo "Checking git status before running bdist_wheel on $PYBIN/pypy"
   git status
@@ -7,6 +9,5 @@ for PYBIN in /opt/python/*/bin; do
 done
 
 for whl in $(ls pypy-dist/*.whl); do
-  LD_LIBRARY_PATH=/usr/local/lib \
   /opt/python/pp360/bin/auditwheel repair -w pypy-wheelhouse $whl
 done
